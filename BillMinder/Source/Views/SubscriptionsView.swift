@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct SubscriptionsView: View {
+    @State private var isAddSubcriptionBottomSheetVisible: Bool = false
+    
     let subscriptions: [Subscription]
     
     var body: some View {
@@ -28,7 +30,7 @@ struct SubscriptionsView: View {
                         HStack {
                             HStack(spacing: 4) {
                                 Image(systemName: "calendar")
-                                Text(dateFormatter(date: subscription.dueDate))
+                                Text("\(subscription.dueDay)")
                             }
                             
                             HStack(spacing: 4) {
@@ -56,13 +58,19 @@ struct SubscriptionsView: View {
                     }
                 }
                 .padding(.all, 4)
-                .frame(width: .infinity, height: 80)
+                .frame(width: .infinity, height: 60)
             }
             .navigationTitle("Subscriptions")
             .toolbar {
-                Button(action: { }) {
+                Button(action: {
+                    isAddSubcriptionBottomSheetVisible = true
+                }) {
                     Image(systemName: "plus")
                 }
+            }
+            .sheet(isPresented: $isAddSubcriptionBottomSheetVisible) {
+                AddSubscriptionView()
+                    .presentationDetents([.medium])
             }
         }
         

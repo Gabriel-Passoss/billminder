@@ -12,15 +12,15 @@ class Subscription: Identifiable {
     let service: String
     let serviceImage: String?
     let price: Double
-    let dueDate: Date
+    let dueDay: Int
     var subscriberSince: Date
     var actualMonthPaid: Bool = false
     
-    init(service: String, serviceImage: String? = nil, price: Double, dueDate: Date, since subscriberSince: Date, actualMonthPaid: Bool) {
+    init(service: String, serviceImage: String? = nil, price: Double, dueDay: Int, since subscriberSince: Date, actualMonthPaid: Bool) {
         self.service = service
         self.serviceImage = serviceImage
         self.price = price
-        self.dueDate = dueDate
+        self.dueDay = dueDay
         self.subscriberSince = subscriberSince
         self.actualMonthPaid = actualMonthPaid
     }
@@ -33,7 +33,7 @@ extension Subscription {
                 service: "Discord",
                 serviceImage: "discord-logo",
                 price: 24.50,
-                dueDate: Calendar.current.date(byAdding: .day, value: -5, to: Date()) ?? Date(),
+                dueDay: Int.random(in: 1...31),
                 since: Calendar.current.date(byAdding: .month, value: -3, to: Date()) ?? Date(),
                 actualMonthPaid: true
             ),
@@ -41,7 +41,7 @@ extension Subscription {
                 service: "Spotify",
                 serviceImage: "spotify-logo",
                 price: 19.90,
-                dueDate: Calendar.current.date(byAdding: .day, value: -2, to: Date()) ?? Date(),
+                dueDay: Int.random(in: 1...31),
                 since: Calendar.current.date(byAdding: .month, value: -9, to: Date()) ?? Date(),
                 actualMonthPaid: false
             ),
@@ -49,7 +49,7 @@ extension Subscription {
                 service: "Raycast",
                 serviceImage: "hbo-max-logo",
                 price: 45.00,
-                dueDate: Calendar.current.date(byAdding: .day, value: -1, to: Date()) ?? Date(),
+                dueDay: Int.random(in: 1...31),
                 since: Calendar.current.date(byAdding: .month, value: -6, to: Date()) ?? Date(),
                 actualMonthPaid: true
             ),
