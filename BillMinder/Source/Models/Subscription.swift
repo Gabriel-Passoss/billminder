@@ -7,7 +7,7 @@
 
 import Foundation
 
-class Subscription: Identifiable {
+struct Subscription: Identifiable {
     let id = UUID()
     let service: String
     let serviceImage: String?

@@ -6,12 +6,15 @@
 //
 
 import SwiftUI
+import PhotosUI
 
 struct AddSubscriptionView: View {
     @State private var serviceName = ""
     @State private var price = 0.00
     @State private var dueDay = 1
     @State private var memberSince = Date()
+    @State private var serviceImage: PhotosPickerItem?
+    @State private var pickedServiceImage: Image?
     
     var body: some View {
         Form {
@@ -37,6 +40,31 @@ struct AddSubscriptionView: View {
             
             Section(header: Text("Subscribed since")) {
                 DatePicker("Please enter a date", selection: $memberSince, displayedComponents: .date)
+            }
+            
+            Section(header: Text("Service image")) {
+                PhotosPicker(selection: $serviceImage, matching: .images) {
+                    HStack {
+                        Text("Select a photo")
+                        
+                        Spacer()
+                        
+                        pickedServiceImage?
+                            .resizable()
+                            .scaledToFit()
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                            .frame(width: 50, height: 50)
+                    }
+                }
+                .onChange(of: serviceImage) {
+                    Task {
+                        if let loaded = try? await serviceImage?.loadTransferable(type: Image.self) {
+                            pickedServiceImage = loaded
+                        } else {
+                            print("Failed to load image")
+                        }
+                    }
+                }
             }
             
             Button {

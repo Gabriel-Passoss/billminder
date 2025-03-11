@@ -58,7 +58,6 @@ struct SubscriptionsView: View {
                     }
                 }
                 .padding(.all, 4)
-                .frame(width: .infinity, height: 60)
             }
             .navigationTitle("Subscriptions")
             .toolbar {
