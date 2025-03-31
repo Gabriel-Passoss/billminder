@@ -10,13 +10,13 @@ import SwiftUI
 struct SubscriptionsView: View {
     @State private var isAddSubcriptionBottomSheetVisible: Bool = false
     
-    let subscriptions: [Subscription]
+    @StateObject var viewModel: SubscriptionsViewModel
     
     var body: some View {
         NavigationStack {
-            List(subscriptions) { subscription in
+            List(viewModel.subscriptions) { subscription in
                 HStack(spacing: 16) {
-                    Image(subscription.serviceImage ?? "")
+                    subscription.serviceImage!
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -68,7 +68,7 @@ struct SubscriptionsView: View {
                 }
             }
             .sheet(isPresented: $isAddSubcriptionBottomSheetVisible) {
-                AddSubscriptionView()
+                AddSubscriptionView(addSubscription: viewModel.addSubscription)
                     .presentationDetents([.medium])
             }
         }
@@ -77,5 +77,5 @@ struct SubscriptionsView: View {
 }
 
 #Preview {
-    SubscriptionsView(subscriptions: Subscription.sample)
+    SubscriptionsView(viewModel: SubscriptionsViewModel(subscriptions: Subscription.sample))
 }

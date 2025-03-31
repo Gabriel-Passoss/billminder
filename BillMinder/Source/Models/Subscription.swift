@@ -5,18 +5,18 @@
 //  Created by Gabriel dos Passos on 07/03/25.
 //
 
-import Foundation
+import SwiftUI
 
 struct Subscription: Identifiable {
     let id = UUID()
     let service: String
-    let serviceImage: String?
+    let serviceImage: Image?
     let price: Double
     let dueDay: Int
     var subscriberSince: Date
     var actualMonthPaid: Bool = false
     
-    init(service: String, serviceImage: String? = nil, price: Double, dueDay: Int, since subscriberSince: Date, actualMonthPaid: Bool) {
+    init(service: String, serviceImage: Image? = nil, price: Double, dueDay: Int, since subscriberSince: Date, actualMonthPaid: Bool) {
         self.service = service
         self.serviceImage = serviceImage
         self.price = price
@@ -31,7 +31,7 @@ extension Subscription {
         [
             .init(
                 service: "Discord",
-                serviceImage: "discord-logo",
+                serviceImage: Image("discord-logo"),
                 price: 24.50,
                 dueDay: Int.random(in: 1...31),
                 since: Calendar.current.date(byAdding: .month, value: -3, to: Date()) ?? Date(),
@@ -39,7 +39,7 @@ extension Subscription {
             ),
             .init(
                 service: "Spotify",
-                serviceImage: "spotify-logo",
+                serviceImage: Image("spotify-logo"),
                 price: 19.90,
                 dueDay: Int.random(in: 1...31),
                 since: Calendar.current.date(byAdding: .month, value: -9, to: Date()) ?? Date(),
@@ -47,7 +47,7 @@ extension Subscription {
             ),
             .init(
                 service: "Raycast",
-                serviceImage: "hbo-max-logo",
+                serviceImage: Image("hbo-max-logo"),
                 price: 45.00,
                 dueDay: Int.random(in: 1...31),
                 since: Calendar.current.date(byAdding: .month, value: -6, to: Date()) ?? Date(),

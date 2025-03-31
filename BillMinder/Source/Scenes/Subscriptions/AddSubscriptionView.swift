@@ -16,6 +16,10 @@ struct AddSubscriptionView: View {
     @State private var serviceImage: PhotosPickerItem?
     @State private var pickedServiceImage: Image?
     
+    @Environment(\.dismiss) private var dismiss
+    
+    var addSubscription: (_ subscription: Subscription) -> Void
+    
     var body: some View {
         Form {
             Section(header: Text("Name of service")) {
@@ -68,7 +72,9 @@ struct AddSubscriptionView: View {
             }
             
             Button {
+                addSubscription(Subscription.init(service: serviceName, serviceImage: pickedServiceImage, price: price, dueDay: dueDay, since: memberSince, actualMonthPaid: false))
                 
+                dismiss()
             } label: {
                 Text("Add service")
             }
@@ -78,5 +84,6 @@ struct AddSubscriptionView: View {
 }
 
 #Preview {
-    AddSubscriptionView()
+    let viewModel = SubscriptionsViewModel(subscriptions: [])
+    AddSubscriptionView(addSubscription: viewModel.addSubscription)
 }

@@ -18,7 +18,7 @@ struct ContentView: View {
                 Text("Metrics")
             }
             
-            SubscriptionsView(subscriptions: Subscription.sample)
+            SubscriptionsView(viewModel: SubscriptionsViewModel(subscriptions: []))
                 .tabItem {
                     Image(systemName: "creditcard")
                     Text("Subscriptions")
