@@ -14,8 +14,8 @@ struct ManageSubscriptionSheetView: View {
     @State private var price = 0.00
     @State private var dueDay = 1
     @State private var memberSince = Date()
-    @State private var serviceImage: PhotosPickerItem?
-    @State private var pickedServiceImage: Image?
+    @State private var serviceImage: Image?
+    @State private var pickedServiceImage: PhotosPickerItem?
     
     @Environment(\.dismiss) private var dismiss
     
@@ -28,7 +28,7 @@ struct ManageSubscriptionSheetView: View {
         _price = State(initialValue: subscription.price)
         _dueDay = State(initialValue: subscription.dueDay)
         _memberSince = State(initialValue: subscription.subscriberSince)
-        _pickedServiceImage = State(initialValue: subscription.serviceImage)
+        _serviceImage = State(initialValue: subscription.serviceImage)
         self.editSubscription = editSubscription
         self.addSubscription = nil
     }
@@ -71,23 +71,23 @@ struct ManageSubscriptionSheetView: View {
             }
             
             Section(header: Text("Service image")) {
-                PhotosPicker(selection: $serviceImage, matching: .images) {
+                PhotosPicker(selection: $pickedServiceImage, matching: .images) {
                     HStack {
                         Text("Select a photo")
                         
                         Spacer()
                         
-                        pickedServiceImage?
+                        serviceImage?
                             .resizable()
                             .scaledToFit()
                             .clipShape(RoundedRectangle(cornerRadius: 8))
                             .frame(width: 50, height: 50)
                     }
                 }
-                .onChange(of: serviceImage) {
+                .onChange(of: pickedServiceImage) {
                     Task {
-                        if let loaded = try? await serviceImage?.loadTransferable(type: Image.self) {
-                            pickedServiceImage = loaded
+                        if let loaded = try? await pickedServiceImage?.loadTransferable(type: Image.self) {
+                            serviceImage = loaded
                         } else {
                             print("Failed to load image")
                         }
@@ -97,11 +97,11 @@ struct ManageSubscriptionSheetView: View {
             
             Button {
                 if let addSubscription {
-                    addSubscription(Subscription.init(service: serviceName, serviceImage: pickedServiceImage, price: price, dueDay: dueDay, since: memberSince, actualMonthPaid: false))
+                    addSubscription(Subscription.init(service: serviceName, serviceImage: serviceImage ?? Image("service-placeholder"), price: price, dueDay: dueDay, since: memberSince, actualMonthPaid: false))
                 }
                 
                 if let editSubscription {
-                    editSubscription(Subscription.init(id: subscriptionID, service: serviceName, serviceImage: pickedServiceImage, price: price, dueDay: dueDay, since: memberSince, actualMonthPaid: false))
+                    editSubscription(Subscription.init(id: subscriptionID, service: serviceName, serviceImage: serviceImage ?? Image("service-placeholder"), price: price, dueDay: dueDay, since: memberSince, actualMonthPaid: false))
                 }
                 
                 dismiss()

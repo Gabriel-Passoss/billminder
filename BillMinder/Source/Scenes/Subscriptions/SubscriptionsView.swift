@@ -18,7 +18,7 @@ struct SubscriptionsView: View {
         NavigationStack {
             List(viewModel.subscriptions) { subscription in
                 HStack(spacing: 16) {
-                    subscription.serviceImage!
+                    subscription.serviceImage
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
