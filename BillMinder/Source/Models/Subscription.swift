@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct Subscription: Identifiable {
-    let id = UUID()
+    let id: UUID
     let service: String
     let serviceImage: Image?
     let price: Double
@@ -16,7 +16,8 @@ struct Subscription: Identifiable {
     var subscriberSince: Date
     var actualMonthPaid: Bool = false
     
-    init(service: String, serviceImage: Image? = nil, price: Double, dueDay: Int, since subscriberSince: Date, actualMonthPaid: Bool) {
+    init(id: UUID? = nil, service: String, serviceImage: Image? = nil, price: Double, dueDay: Int, since subscriberSince: Date, actualMonthPaid: Bool) {
+        self.id = id ?? UUID()
         self.service = service
         self.serviceImage = serviceImage
         self.price = price

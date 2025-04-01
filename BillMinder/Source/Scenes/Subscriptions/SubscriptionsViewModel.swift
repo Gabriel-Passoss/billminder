@@ -10,8 +10,8 @@ import SwiftUI
 final class SubscriptionsViewModel: ObservableObject {
     @Published var subscriptions: [Subscription] = []
     
-    init(subscriptions: [Subscription]) {
-        self.subscriptions = subscriptions
+    init(subscriptions: [Subscription]?) {
+        self.subscriptions = subscriptions ?? []
     }
     
     func addSubscription(subscription: Subscription) {
@@ -20,5 +20,11 @@ final class SubscriptionsViewModel: ObservableObject {
     
     func removeSubscription(at index: Int) {
         subscriptions.remove(at: index)
+    }
+    
+    func editSubscription(subscription: Subscription) {
+        if let index = subscriptions.firstIndex(where: { $0.id == subscription.id}) {
+            subscriptions[index] = subscription
+        }
     }
 }

@@ -8,7 +8,8 @@
 import SwiftUI
 import PhotosUI
 
-struct AddSubscriptionView: View {
+struct ManageSubscriptionSheetView: View {
+    private var subscriptionID: UUID?
     @State private var serviceName = ""
     @State private var price = 0.00
     @State private var dueDay = 1
@@ -18,7 +19,30 @@ struct AddSubscriptionView: View {
     
     @Environment(\.dismiss) private var dismiss
     
-    var addSubscription: (_ subscription: Subscription) -> Void
+    var addSubscription: ((_ subscription: Subscription) -> Void)?
+    var editSubscription: ((_ subscription: Subscription) -> Void)?
+    
+    init(subscription: Subscription, editSubscription: @escaping (_ subscription: Subscription) -> Void) {
+        self.subscriptionID = subscription.id
+        _serviceName = State(initialValue: subscription.service)
+        _price = State(initialValue: subscription.price)
+        _dueDay = State(initialValue: subscription.dueDay)
+        _memberSince = State(initialValue: subscription.subscriberSince)
+        _pickedServiceImage = State(initialValue: subscription.serviceImage)
+        self.editSubscription = editSubscription
+        self.addSubscription = nil
+    }
+    
+    init(addSubscription: @escaping (_ subscription: Subscription) -> Void) {
+        self.serviceName = ""
+        self.price = 0.00
+        self.dueDay = 1
+        self.memberSince = Date()
+        self.serviceName = ""
+        self.pickedServiceImage = nil
+        self.addSubscription = addSubscription
+        self.editSubscription = nil
+    }
     
     var body: some View {
         Form {
@@ -72,11 +96,22 @@ struct AddSubscriptionView: View {
             }
             
             Button {
-                addSubscription(Subscription.init(service: serviceName, serviceImage: pickedServiceImage, price: price, dueDay: dueDay, since: memberSince, actualMonthPaid: false))
+                if let addSubscription {
+                    addSubscription(Subscription.init(service: serviceName, serviceImage: pickedServiceImage, price: price, dueDay: dueDay, since: memberSince, actualMonthPaid: false))
+                }
+                
+                if let editSubscription {
+                    editSubscription(Subscription.init(id: subscriptionID, service: serviceName, serviceImage: pickedServiceImage, price: price, dueDay: dueDay, since: memberSince, actualMonthPaid: false))
+                }
                 
                 dismiss()
             } label: {
-                Text("Add service")
+                if addSubscription != nil {
+                    Text("Add service")
+                } else {
+                    Text("Edit service")
+                }
+                
             }
             .frame(width: 300)
         }
@@ -85,5 +120,5 @@ struct AddSubscriptionView: View {
 
 #Preview {
     let viewModel = SubscriptionsViewModel(subscriptions: [])
-    AddSubscriptionView(addSubscription: viewModel.addSubscription)
+    ManageSubscriptionSheetView(addSubscription: viewModel.addSubscription)
 }

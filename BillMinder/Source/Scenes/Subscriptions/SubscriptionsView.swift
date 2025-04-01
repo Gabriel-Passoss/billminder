@@ -9,6 +9,8 @@ import SwiftUI
 
 struct SubscriptionsView: View {
     @State private var isAddSubcriptionBottomSheetVisible: Bool = false
+    @State private var isEditSubcriptionBottomSheetVisible: Bool = false
+    @State private var editingSubscription: Subscription?
     
     @StateObject var viewModel: SubscriptionsViewModel
     
@@ -54,7 +56,10 @@ struct SubscriptionsView: View {
                             })
                             .foregroundStyle(.red)
                             
-                            Button(action: { }, label: {
+                            Button(action: {
+                                editingSubscription = subscription
+                                isEditSubcriptionBottomSheetVisible = true
+                            }, label: {
                                 Image(systemName: "pencil")
                             })
                             .foregroundStyle(.blue)
@@ -72,9 +77,16 @@ struct SubscriptionsView: View {
                 }
             }
             .sheet(isPresented: $isAddSubcriptionBottomSheetVisible) {
-                AddSubscriptionView(addSubscription: viewModel.addSubscription)
+                ManageSubscriptionSheetView(addSubscription: viewModel.addSubscription)
                     .presentationDetents([.medium])
             }
+            .sheet(item: $editingSubscription) {
+                editingSubscription = nil
+            } content: { subscription in
+                ManageSubscriptionSheetView(subscription: subscription, editSubscription: viewModel.editSubscription)
+                    .presentationDetents([.medium])
+            }
+
             
             Spacer()
             
