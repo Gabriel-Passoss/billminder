@@ -45,7 +45,11 @@ struct SubscriptionsView: View {
                         .font(.caption)
                         .foregroundStyle(.gray)
                         .swipeActions(edge: .trailing) {
-                            Button(role: .destructive, action: { }, label: {
+                            Button(role: .destructive, action: {
+                                if let index = viewModel.subscriptions.firstIndex(where: { $0.id == subscription.id}) {
+                                    viewModel.removeSubscription(at: index)
+                                }
+                            }, label: {
                                 Image(systemName: "trash")
                             })
                             .foregroundStyle(.red)
@@ -71,6 +75,11 @@ struct SubscriptionsView: View {
                 AddSubscriptionView(addSubscription: viewModel.addSubscription)
                     .presentationDetents([.medium])
             }
+            
+            Spacer()
+            
+            Text("^[\(viewModel.subscriptions.count) services](inflect: true)")
+                .font(.callout)
         }
         
     }

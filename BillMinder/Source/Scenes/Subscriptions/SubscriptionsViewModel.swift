@@ -17,4 +17,8 @@ final class SubscriptionsViewModel: ObservableObject {
     func addSubscription(subscription: Subscription) {
         subscriptions.append(subscription)
     }
+    
+    func removeSubscription(at index: Int) {
+        subscriptions.remove(at: index)
+    }
 }
