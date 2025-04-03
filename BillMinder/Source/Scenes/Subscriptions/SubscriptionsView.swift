@@ -18,11 +18,7 @@ struct SubscriptionsView: View {
         NavigationStack {
             List(viewModel.subscriptions) { subscription in
                 HStack(spacing: 16) {
-                    subscription.serviceImage
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                        .frame(width: 50, height: 50)
+                    ServiceImageView(path: subscription.serviceImage)
                     
                     VStack(alignment: .leading, spacing: 8) {
                         Text(subscription.service)
@@ -77,17 +73,16 @@ struct SubscriptionsView: View {
                 }
             }
             .sheet(isPresented: $isAddSubcriptionBottomSheetVisible) {
-                ManageSubscriptionSheetView(addSubscription: viewModel.addSubscription)
+                ManageSubscriptionSheetView(saveSubscription: viewModel.saveSubscription)
                     .presentationDetents([.medium])
             }
             .sheet(item: $editingSubscription) {
                 editingSubscription = nil
             } content: { subscription in
-                ManageSubscriptionSheetView(subscription: subscription, editSubscription: viewModel.editSubscription)
+                ManageSubscriptionSheetView(subscription: subscription, saveSubscription: viewModel.saveSubscription)
                     .presentationDetents([.medium])
             }
 
-            
             Spacer()
             
             Text("^[\(viewModel.subscriptions.count) services](inflect: true)")

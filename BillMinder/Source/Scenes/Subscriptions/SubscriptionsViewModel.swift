@@ -14,17 +14,16 @@ final class SubscriptionsViewModel: ObservableObject {
         self.subscriptions = subscriptions ?? []
     }
     
-    func addSubscription(subscription: Subscription) {
-        subscriptions.append(subscription)
-    }
-    
     func removeSubscription(at index: Int) {
         subscriptions.remove(at: index)
     }
     
-    func editSubscription(subscription: Subscription) {
+    func saveSubscription(subscription: Subscription) {
         if let index = subscriptions.firstIndex(where: { $0.id == subscription.id}) {
             subscriptions[index] = subscription
+            return
         }
+        
+        subscriptions.append(subscription)
     }
 }

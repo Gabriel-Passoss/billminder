@@ -7,6 +7,7 @@
 
 import SwiftUI
 import PhotosUI
+import UIKit
 
 struct ManageSubscriptionSheetView: View {
     private var subscriptionID: UUID?
@@ -17,31 +18,30 @@ struct ManageSubscriptionSheetView: View {
     @State private var serviceImage: Image?
     @State private var pickedServiceImage: PhotosPickerItem?
     
+    @State private var isLoading = false
+    
     @Environment(\.dismiss) private var dismiss
     
-    var addSubscription: ((_ subscription: Subscription) -> Void)?
-    var editSubscription: ((_ subscription: Subscription) -> Void)?
+    var saveSubscription: (_ subscription: Subscription) -> Void
     
-    init(subscription: Subscription, editSubscription: @escaping (_ subscription: Subscription) -> Void) {
+    init(subscription: Subscription, saveSubscription: @escaping (_ subscription: Subscription) -> Void) {
         self.subscriptionID = subscription.id
         _serviceName = State(initialValue: subscription.service)
         _price = State(initialValue: subscription.price)
         _dueDay = State(initialValue: subscription.dueDay)
         _memberSince = State(initialValue: subscription.subscriberSince)
-        _serviceImage = State(initialValue: subscription.serviceImage)
-        self.editSubscription = editSubscription
-        self.addSubscription = nil
+        _serviceImage = State(initialValue: Image.fromURL(subscription.serviceImage) as? Image)
+        self.saveSubscription = saveSubscription
     }
     
-    init(addSubscription: @escaping (_ subscription: Subscription) -> Void) {
+    init(saveSubscription: @escaping (_ subscription: Subscription) -> Void) {
         self.serviceName = ""
         self.price = 0.00
         self.dueDay = 1
         self.memberSince = Date()
         self.serviceName = ""
         self.pickedServiceImage = nil
-        self.addSubscription = addSubscription
-        self.editSubscription = nil
+        self.saveSubscription = saveSubscription
     }
     
     var body: some View {
@@ -79,14 +79,14 @@ struct ManageSubscriptionSheetView: View {
                         
                         serviceImage?
                             .resizable()
-                            .scaledToFit()
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                            .aspectRatio(contentMode: .fill)
+                            .clipShape(Circle())
                             .frame(width: 50, height: 50)
                     }
                 }
                 .onChange(of: pickedServiceImage) {
                     Task {
-                        if let loaded = try? await pickedServiceImage?.loadTransferable(type: Image.self) {
+                        if let loaded = try await pickedServiceImage?.loadTransferable(type: Image.self) {
                             serviceImage = loaded
                         } else {
                             print("Failed to load image")
@@ -96,22 +96,29 @@ struct ManageSubscriptionSheetView: View {
             }
             
             Button {
-                if let addSubscription {
-                    addSubscription(Subscription.init(service: serviceName, serviceImage: serviceImage ?? Image("service-placeholder"), price: price, dueDay: dueDay, since: memberSince, actualMonthPaid: false))
+                isLoading.toggle()
+                Task {
+                    if let pickedServiceImage = pickedServiceImage {
+                        if let photoData = try await pickedServiceImage.loadTransferable(type: Data.self) {
+                            do {
+                                let photoURL = try await StorageManager.shared.uploadPhoto(photoData, fileName: serviceName)
+                                
+                                saveSubscription(Subscription.init(service: serviceName, serviceImage: photoURL.path, price: price, dueDay: dueDay, since: memberSince, actualMonthPaid: false))
+                            } catch {
+                                print(error)
+                            }
+                        }
+                    }
+                    isLoading.toggle()
+                    dismiss()
                 }
-                
-                if let editSubscription {
-                    editSubscription(Subscription.init(id: subscriptionID, service: serviceName, serviceImage: serviceImage ?? Image("service-placeholder"), price: price, dueDay: dueDay, since: memberSince, actualMonthPaid: false))
-                }
-                
-                dismiss()
+
             } label: {
-                if addSubscription != nil {
-                    Text("Add service")
+                if isLoading {
+                    ProgressView()
                 } else {
-                    Text("Edit service")
+                    Text("Save subscription")
                 }
-                
             }
             .frame(width: 300)
         }
@@ -120,5 +127,5 @@ struct ManageSubscriptionSheetView: View {
 
 #Preview {
     let viewModel = SubscriptionsViewModel(subscriptions: [])
-    ManageSubscriptionSheetView(addSubscription: viewModel.addSubscription)
+    ManageSubscriptionSheetView(saveSubscription: viewModel.saveSubscription)
 }
