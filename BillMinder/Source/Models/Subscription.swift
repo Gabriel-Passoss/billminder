@@ -6,13 +6,14 @@
 //
 
 import SwiftUI
+import SwiftData
 
-struct Subscription: Identifiable {
-    let id: UUID
-    let service: String
-    let serviceImage: String
-    let price: Double
-    let dueDay: Int
+final class Subscription: Identifiable {
+    var id: UUID
+    var service: String
+    var serviceImage: String
+    var price: Double
+    var dueDay: Int
     var subscriberSince: Date
     var actualMonthPaid: Bool = false
     

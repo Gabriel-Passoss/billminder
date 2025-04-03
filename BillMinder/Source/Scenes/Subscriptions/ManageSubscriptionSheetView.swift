@@ -15,7 +15,7 @@ struct ManageSubscriptionSheetView: View {
     @State private var price = 0.00
     @State private var dueDay = 1
     @State private var memberSince = Date()
-    @State private var serviceImage: Image?
+    @State private var serviceImage: ServiceImageView?
     @State private var pickedServiceImage: PhotosPickerItem?
     
     @State private var isLoading = false
@@ -30,7 +30,7 @@ struct ManageSubscriptionSheetView: View {
         _price = State(initialValue: subscription.price)
         _dueDay = State(initialValue: subscription.dueDay)
         _memberSince = State(initialValue: subscription.subscriberSince)
-        _serviceImage = State(initialValue: Image.fromURL(subscription.serviceImage) as? Image)
+        _serviceImage = State(initialValue: ServiceImageView(path: subscription.serviceImage))
         self.saveSubscription = saveSubscription
     }
     
@@ -77,17 +77,13 @@ struct ManageSubscriptionSheetView: View {
                         
                         Spacer()
                         
-                        serviceImage?
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .clipShape(Circle())
-                            .frame(width: 50, height: 50)
+                        serviceImage
                     }
                 }
                 .onChange(of: pickedServiceImage) {
                     Task {
-                        if let loaded = try await pickedServiceImage?.loadTransferable(type: Image.self) {
-                            serviceImage = loaded
+                        if let loaded = try await pickedServiceImage?.loadTransferable(type: Data.self) {
+                            serviceImage = ServiceImageView(imageData: loaded)
                         } else {
                             print("Failed to load image")
                         }
