@@ -19,6 +19,10 @@ struct ManageSubscriptionSheetView: View {
     @State private var pickedServiceImage: PhotosPickerItem?
     
     @State private var isLoading = false
+    @State private var showInvalidServiceName = false
+    @State private var showInvalidPriceError = false
+    @State private var showInvalidServiceImage = false
+
     
     @Environment(\.dismiss) private var dismiss
     
@@ -44,19 +48,41 @@ struct ManageSubscriptionSheetView: View {
         self.saveSubscription = saveSubscription
     }
     
+    func handleSaveSubscription() {
+        Task {
+            if let pickedServiceImage = pickedServiceImage {
+                if let photoData = try await pickedServiceImage.loadTransferable(type: Data.self) {
+                    do {
+                        let photoURL = try await StorageManager.shared.uploadPhoto(photoData, fileName: serviceName)
+                        
+                        let subscriptionToSave = Subscription(service: serviceName, serviceImage: photoURL.path, price: price, dueDay: dueDay, since: memberSince, actualMonthPaid: false)
+                        
+                        saveSubscription(subscriptionToSave)
+                    } catch {
+                        print(error)
+                    }
+                }
+            }
+        }
+    }
+    
     var body: some View {
         Form {
             Section(header: Text("Name of service")) {
                 TextField(text: $serviceName, label: {
                     Text("ex: Netflix")
                 })
+                .modifier(FormError(errorMessage: showInvalidServiceName ? "Enter a valid name of service" : nil))
             }
             .padding(.top, 8)
             
             Section(header: Text("Price")) {
                 TextField("Amount", value: $price, format: .currency(code: Locale.current.currency?.identifier ?? "USD"))
                     .keyboardType(.decimalPad)
+                    .modifier(FormError(errorMessage: showInvalidPriceError ? "Price cannot be empty" : nil))
             }
+            
+            
             
             Section(header: Text("Due date")) {
                 Picker("Select a day", selection: $dueDay) {
@@ -79,6 +105,7 @@ struct ManageSubscriptionSheetView: View {
                         
                         serviceImage
                     }
+                    .modifier(FormError(errorMessage: showInvalidServiceImage ? "Please select an image" : nil))
                 }
                 .onChange(of: pickedServiceImage) {
                     Task {
@@ -92,23 +119,25 @@ struct ManageSubscriptionSheetView: View {
             }
             
             Button {
-                isLoading.toggle()
-                Task {
-                    if let pickedServiceImage = pickedServiceImage {
-                        if let photoData = try await pickedServiceImage.loadTransferable(type: Data.self) {
-                            do {
-                                let photoURL = try await StorageManager.shared.uploadPhoto(photoData, fileName: serviceName)
-                                
-                                saveSubscription(Subscription.init(service: serviceName, serviceImage: photoURL.path, price: price, dueDay: dueDay, since: memberSince, actualMonthPaid: false))
-                            } catch {
-                                print(error)
-                            }
-                        }
-                    }
-                    isLoading.toggle()
-                    dismiss()
+                if serviceName.isEmpty {
+                    showInvalidServiceName = true
+                    return
                 }
-
+                
+                if price == 0.00 {
+                    showInvalidPriceError = true
+                    return
+                }
+                
+                if pickedServiceImage == nil {
+                    showInvalidServiceImage = true
+                    return
+                }
+                
+                isLoading.toggle()
+                handleSaveSubscription()
+                isLoading.toggle()
+                dismiss()
             } label: {
                 if isLoading {
                     ProgressView()
